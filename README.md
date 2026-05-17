@@ -51,3 +51,14 @@ Validated on real-world dataset:
 - Real: 50 frames, Print spoof: 49 frames, Display spoof: 49 frames
 - Accuracy: 99.3% | FN=0 at threshold=0.25
 - Models: MiniFASNetV2 + MiniFASNetV1SE (TFLite FP16)
+
+## Acknowledgements
+
+This package uses MiniFASNet models originally from:
+[minivision-ai/Silent-Face-Anti-Spoofing](https://github.com/minivision-ai/Silent-Face-Anti-Spoofing)
+
+Original license: Apache License 2.0
+
+Modifications:
+- Converted PyTorch (`.pth`) weights to TensorFlow Lite (`.tflite`)
+- Integrated for Flutter passive liveness detection
