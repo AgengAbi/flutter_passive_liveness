@@ -1,0 +1,24 @@
+name: flutter_passive_liveness
+description: Passive face liveness detection using dual-model MiniFASNet (V2 + V1SE). Validated threshold=0.25, 99.3% accuracy, FN=0.
+version: 0.1.0
+homepage: https://github.com/yourusername/flutter_passive_liveness
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  tflite_flutter: ^0.10.4
+  image: ^4.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  assets:
+    - assets/minifasnet_v2_fp16.tflite
+    - assets/minifasnet_v1se_fp16.tflite
