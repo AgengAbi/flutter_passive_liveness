@@ -12,38 +12,50 @@ Passive face liveness detection for Flutter using dual-model MiniFASNet (V2 + V1
 
 ## Usage
 
+Inference runs in a background isolate that the package manages for you. You
+only do two cheap things per frame on the main isolate: detect the face (bring
+your own detector) and crop. Bring the YUV420 planes from the camera and the
+face box from your detector:
+
 ```dart
 final detector = PassiveLivenessDetector();
-await detector.initialize();
+await detector.initialize();        // loads models + spawns the inference isolate
 
-// Call at ~10fps from a background isolate
-final result = await detector.analyze(
-  cameraFrame,          // img.Image — full decoded camera frame
-  FaceBox(              // bounding box from your face detector (e.g. ML Kit, BlazeFace)
-    left: bbox.left,
-    top: bbox.top,
-    right: bbox.right,
-    bottom: bbox.bottom,
-  ),
+// Per camera frame (skip every 2nd–3rd frame for ~10fps):
+final cropV2 = CropUtils.directCrop(
+  yPlane: image.planes[0].bytes,
+  uPlane: image.planes[1].bytes,
+  vPlane: image.planes[2].bytes,
+  width: image.width,
+  height: image.height,
+  yRowStride: image.planes[0].bytesPerRow,
+  uvRowStride: image.planes[1].bytesPerRow,
+  uvPixelStride: image.planes[1].bytesPerPixel ?? 1,
+  sensorOrientation: camera.sensorOrientation,   // 0/90/180/270
+  faceLeft: face.boundingBox.left,
+  faceTop: face.boundingBox.top,
+  faceRight: face.boundingBox.right,
+  faceBottom: face.boundingBox.bottom,
+  scale: PassiveLivenessDetector.scaleV2,        // 2.7
 );
+final cropV1SE = CropUtils.directCrop(/* ...same, */ scale: PassiveLivenessDetector.scaleV1SE); // 4.0
 
-if (result.isLive) {
-  // proceed with face recognition
+final result = await detector.analyzeCrops(cropV2, cropV1SE);
+// null = a frame is still being processed (dropped) — just skip it.
+if (result != null && result.isLive) {
+  // sustained real face → proceed with face recognition
 }
 
-// Clean up
-detector.dispose();
+detector.dispose();   // kills the isolate
 ```
 
 ## Threading
 
-`analyze()` runs TFLite inference synchronously under the hood. Call it from a
-background isolate to avoid UI jank:
-
-```dart
-// Use Dart Isolate for camera streaming (see liveness_demo for full pattern)
-await compute(_runLiveness, AnalyzeArgs(frame, bbox));
-```
+`analyzeCrops` sends only two small 80×80 BGR buffers across the isolate
+boundary — never a full frame — so the per-frame copy cost stays tiny. The
+two-model inference happens entirely inside the package's isolate; the cheap
+temporal HOLD window runs on the calling isolate. No `compute()` or manual
+isolate wiring needed on your side.
 
 ## Research Basis
 
