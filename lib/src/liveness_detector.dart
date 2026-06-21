@@ -27,10 +27,14 @@ import 'liveness_window.dart';
 ///     and returns a [LivenessResult] with the sustained [LivenessResult.isLive]
 ///     decision.
 class PassiveLivenessDetector {
+  // Full-precision (FP32) models — these are the variants the research was
+  // validated on (threshold 0.25, FN=0, FP=1). The FP16 variants degrade
+  // spoof discrimination (prints score mid-range instead of low), so they are
+  // intentionally NOT used. See docs/SPEC_CHANGES.md (2026-06-21).
   static const String _v2Asset =
-      'packages/flutter_passive_liveness/assets/minifasnet_v2_fp16.tflite';
+      'packages/flutter_passive_liveness/assets/minifasnet_v2.tflite';
   static const String _v1seAsset =
-      'packages/flutter_passive_liveness/assets/minifasnet_v1se_fp16.tflite';
+      'packages/flutter_passive_liveness/assets/minifasnet_v1se.tflite';
 
   /// Per-frame REAL-score threshold (validated 0.25).
   static const double threshold = 0.25;
@@ -162,7 +166,10 @@ void _isolateEntry(_InitMsg init) async {
       final a = _runModel(v2, cropV2);
       final b = _runModel(v1se, cropV1SE);
 
-      // Models already output softmax; combine = per-class average.
+      // Combine = per-class average of the two models' RAW outputs.
+      // NOTE: these are raw class scores (logits), NOT 0-1 softmax
+      // probabilities — in practice spoofs land negative and real faces land
+      // above ~1, with the validated threshold (0.25) sitting in the gap.
       // Class mapping: [0]=SPOOF_A, [1]=REAL, [2]=SPOOF_B.
       init.sendPort.send(_RawScore(
         (a[1] + b[1]) / 2.0,

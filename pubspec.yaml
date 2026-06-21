@@ -20,5 +20,5 @@ dev_dependencies:
 
 flutter:
   assets:
-    - assets/minifasnet_v2_fp16.tflite
-    - assets/minifasnet_v1se_fp16.tflite
+    - assets/minifasnet_v2.tflite
+    - assets/minifasnet_v1se.tflite
