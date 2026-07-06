@@ -7,7 +7,7 @@ void main() {
     // package-name library, plus a tiny runtime sanity check.
     final window = LivenessWindow();
     expect(window.frameCount, 0);
-    expect(PassiveLivenessDetector.threshold, 0.25);
+    expect(PassiveLivenessDetector().threshold, 0.25);
     expect(PassiveLivenessDetector.modelInputSize, 80);
 
     const result = LivenessResult(score: 0.9, isLive: true);

@@ -36,8 +36,11 @@ class PassiveLivenessDetector {
   static const String _v1seAsset =
       'packages/flutter_passive_liveness/assets/minifasnet_v1se.tflite';
 
-  /// Per-frame REAL-score threshold (validated 0.25).
-  static const double threshold = 0.25;
+  /// Per-frame REAL-score threshold actually used for the live/spoof decision.
+  /// Single source of truth: it reflects the injected [LivenessWindow], so a
+  /// consumer who tunes the window sees the same value here (no stale constant).
+  /// Defaults to the validated 0.25.
+  double get threshold => _window.threshold;
 
   /// MiniFASNet input size (80×80).
   static const int modelInputSize = CropUtils.modelInputSize;
