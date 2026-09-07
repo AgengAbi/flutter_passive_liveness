@@ -2,6 +2,19 @@
 
 Passive face liveness detection for Flutter using dual-model MiniFASNet (V2 + V1SE).
 
+## Installation
+
+Distributed as a git dependency, not on pub.dev. Pin `ref` to a tag so your
+build does not shift when this package changes:
+
+```yaml
+dependencies:
+  flutter_passive_liveness:
+    git:
+      url: https://github.com/AgengAbi/flutter_passive_liveness.git
+      ref: v0.2.0
+```
+
 ## Features
 
 - Dual-model inference: V2 (scale=2.7) + V1SE (scale=4.0)
