@@ -74,3 +74,11 @@ Original license: Apache License 2.0
 Modifications:
 - Converted PyTorch (`.pth`) weights to TensorFlow Lite (`.tflite`)
 - Integrated for Flutter passive liveness detection
+
+## License
+
+The Dart source code of this package is MIT licensed (see `LICENSE`).
+
+The bundled `.tflite` model weights are **not** MIT — they keep their original
+upstream license. See `NOTICE` for the full terms, which you must comply with
+when redistributing this package or an app that embeds it.
